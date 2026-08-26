@@ -3,7 +3,17 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types/database.types";
 
-/** Perfil do usuário autenticado atual (ou `null` se não houver sessão). */
+/**
+ * Perfil do usuário autenticado atual (ou `null` se não houver sessão).
+ *
+ * Usa a função `garantir_meu_perfil` no banco em vez de um SELECT direto:
+ * se por algum motivo o perfil não existir (trigger que não rodou, linha
+ * apagada manualmente, etc.), ela cria o perfil na hora. Isso evita que um
+ * usuário autenticado sem perfil fique preso — nunca redirecione essa
+ * ausência para /login aqui, pois o proxy já garante que só chega até este
+ * ponto quem tem sessão válida, e mandar de volta pro login criaria um loop
+ * (o proxy manda usuário autenticado que visita /login de volta pra cá).
+ */
 export async function buscarPerfilAtual(): Promise<Profile | null> {
   const supabase = await createClient();
   const {
@@ -11,7 +21,11 @@ export async function buscarPerfilAtual(): Promise<Profile | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+  const { data, error } = await supabase.rpc("garantir_meu_perfil");
+  if (error) {
+    console.error("Falha ao buscar/criar perfil do usuário:", error.message);
+    return null;
+  }
   return data;
 }
 

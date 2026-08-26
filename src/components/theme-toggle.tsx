@@ -17,7 +17,10 @@ export function ThemeToggle() {
   // Evita mismatch de hidratação: o ícone depende do tema resolvido no
   // cliente, que só é conhecido após o primeiro render.
   const [montado, setMontado] = useState(false);
-  useEffect(() => setMontado(true), []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- só sabemos que hidratou depois do 1º render
+    setMontado(true);
+  }, []);
 
   return (
     <DropdownMenu>

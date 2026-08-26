@@ -130,6 +130,10 @@ export interface Database {
         };
         Returns: Database["public"]["Tables"]["agendamentos"]["Row"];
       };
+      garantir_meu_perfil: {
+        Args: Record<string, never>;
+        Returns: Database["public"]["Tables"]["profiles"]["Row"];
+      };
     };
     Enums: {
       status_agendamento: StatusAgendamento;

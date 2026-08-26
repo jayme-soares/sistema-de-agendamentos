@@ -10,7 +10,26 @@ import { buscarPerfilAtual } from "@/lib/data/usuarios";
 export default async function AguardandoAprovacaoPage() {
   const perfil = await buscarPerfilAtual();
 
-  if (!perfil) redirect("/login");
+  // Só se chega a esta rota com uma sessão válida (o proxy já barra quem não
+  // está logado), então `!perfil` aqui é uma falha ao buscar/criar o perfil
+  // — nunca redirecionar para /login nesse caso: o proxy manda de volta
+  // quem já está autenticado, e isso vira um loop. Mostramos um estado de
+  // erro com saída manual em vez disso.
+  if (!perfil) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Não foi possível carregar seu perfil agora. Tente novamente em instantes.
+        </p>
+        <form action={signOut}>
+          <Button type="submit" variant="outline">
+            Sair
+          </Button>
+        </form>
+      </div>
+    );
+  }
+
   if (perfil.status_conta === "aprovado") redirect("/dashboard");
 
   const rejeitado = perfil.status_conta === "rejeitado";
