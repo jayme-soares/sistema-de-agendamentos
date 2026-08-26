@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
-import { Navbar } from "@/components/layout/Navbar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -15,16 +17,36 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
+  const { data: perfil } = await supabase
     .from("profiles")
-    .select("nome, email")
+    .select("nome, email, role, status_conta")
     .eq("id", user.id)
     .maybeSingle();
 
+  // Cadastro ainda não aprovado (ou rejeitado) por um administrador: não
+  // libera o acesso às telas do sistema.
+  if (!perfil || perfil.status_conta !== "aprovado") {
+    redirect("/aguardando-aprovacao");
+  }
+
+  const isAdmin = perfil.role === "admin";
+
+  let pendentes = 0;
+  if (isAdmin) {
+    const { count } = await supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("status_conta", "pendente");
+    pendentes = count ?? 0;
+  }
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar nome={profile?.nome ?? user.email ?? "Usuário"} email={profile?.email ?? user.email ?? ""} />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar nome={perfil.nome} email={perfil.email} isAdmin={isAdmin} pendentes={pendentes} />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-6">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

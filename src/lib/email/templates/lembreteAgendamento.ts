@@ -1,8 +1,12 @@
 import { formatarDataHora } from "@/lib/utils/date";
 import type { Agendamento } from "@/lib/types/database.types";
 
-/** Monta o assunto e o HTML do e-mail-resumo de agendamentos pendentes do dia. */
-export function montarEmailLembreteDia(agendamentos: Agendamento[]) {
+/**
+ * Monta o assunto e o HTML do e-mail-resumo de agendamentos pendentes do
+ * dia, enviado individualmente para cada usuário aprovado do sistema
+ * (`nomeDestinatario` personaliza a saudação).
+ */
+export function montarEmailLembreteDia(agendamentos: Agendamento[], nomeDestinatario?: string) {
   const assunto =
     agendamentos.length === 1
       ? "1 agendamento pendente para hoje"
@@ -21,10 +25,12 @@ export function montarEmailLembreteDia(agendamentos: Agendamento[]) {
     )
     .join("");
 
+  const saudacao = nomeDestinatario ? `Olá, ${escapeHtml(nomeDestinatario)}.` : "Olá.";
+
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
       <h2 style="margin-bottom:4px;">Agendamentos de hoje</h2>
-      <p style="color:#555;margin-top:0;">Resumo automático dos agendamentos pendentes marcados para hoje.</p>
+      <p style="color:#555;margin-top:0;">${saudacao} Resumo automático dos agendamentos pendentes marcados para hoje.</p>
       <table style="border-collapse:collapse;width:100%;font-size:14px;">
         <thead>
           <tr style="background:#f4f4f5;text-align:left;">

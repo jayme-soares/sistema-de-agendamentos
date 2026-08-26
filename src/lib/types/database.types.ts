@@ -10,6 +10,8 @@
 // para manter os tipos sempre em sincronia com o schema real do banco.
 
 export type StatusAgendamento = "pendente" | "cancelado" | "realizado" | "adiado";
+export type PapelUsuario = "admin" | "usuario";
+export type StatusConta = "pendente" | "aprovado" | "rejeitado";
 
 export interface Database {
   __InternalSupabase: {
@@ -22,18 +24,24 @@ export interface Database {
           id: string;
           nome: string;
           email: string;
+          role: PapelUsuario;
+          status_conta: StatusConta;
           created_at: string;
         };
         Insert: {
           id: string;
           nome: string;
           email: string;
+          role?: PapelUsuario;
+          status_conta?: StatusConta;
           created_at?: string;
         };
         Update: {
           id?: string;
           nome?: string;
           email?: string;
+          role?: PapelUsuario;
+          status_conta?: StatusConta;
           created_at?: string;
         };
         Relationships: [];
@@ -125,6 +133,8 @@ export interface Database {
     };
     Enums: {
       status_agendamento: StatusAgendamento;
+      papel_usuario: PapelUsuario;
+      status_conta: StatusConta;
     };
     CompositeTypes: Record<string, never>;
   };
@@ -133,3 +143,4 @@ export interface Database {
 export type Agendamento = Database["public"]["Tables"]["agendamentos"]["Row"];
 export type AgendamentoInsert = Database["public"]["Tables"]["agendamentos"]["Insert"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
