@@ -108,7 +108,17 @@ O Vercel Cron **só roda em produção**. Para testar em desenvolvimento, crie
 um agendamento com data de hoje e chame a rota manualmente:
 
 ```bash
+# macOS/Linux ou Git Bash
 curl http://localhost:3000/api/cron/lembretes -H "Authorization: Bearer SEU_CRON_SECRET"
+```
+
+```powershell
+# PowerShell — o `curl` daqui é um alias de Invoke-WebRequest e não aceita
+# `-H`; use `curl.exe` (o curl de verdade, já vem no Windows) ou o cmdlet nativo:
+curl.exe http://localhost:3000/api/cron/lembretes -H "Authorization: Bearer SEU_CRON_SECRET"
+
+# ou:
+Invoke-RestMethod -Uri "http://localhost:3000/api/cron/lembretes" -Headers @{ Authorization = "Bearer SEU_CRON_SECRET" }
 ```
 
 Rodar duas vezes seguidas não deve reenviar o e-mail (verifique a tabela
