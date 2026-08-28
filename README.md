@@ -97,10 +97,22 @@ npm run dev
 ```
 
 Abra http://localhost:3000 — você será redirecionado para `/login`. Crie a
-primeira conta em `/signup` (o Supabase pede confirmação por e-mail antes do
-primeiro login); como é a primeira conta do projeto, ela já nasce
-administradora e aprovada. Contas seguintes precisam ser aprovadas por um
-admin em `/admin`.
+primeira conta em `/signup`; como é a primeira conta do projeto, ela já
+nasce administradora e aprovada. Contas seguintes precisam ser aprovadas por
+um admin em `/admin`.
+
+Por padrão o Supabase exige confirmação por e-mail antes do primeiro login
+(usa o remetente próprio dele, bem limitado — veja a nota abaixo se for
+usar). Neste projeto essa confirmação foi **desativada** em
+**Authentication → Settings → "Confirm email"**, ficando só a aprovação
+manual pelo admin como barreira de acesso — o app já lida com os dois
+cenários (com ou sem confirmação ativada).
+
+> **Nota sobre e-mail de confirmação**: se você reativar a confirmação por
+> e-mail, o remetente padrão do Supabase é limitado a poucos envios por
+> hora (pensado só pra teste). Para produção, configure **Authentication →
+> Settings → SMTP Settings** usando o Resend como SMTP (`smtp.resend.com`,
+> porta `465`, usuário `resend`, senha = sua `RESEND_API_KEY`).
 
 ### Testando o lembrete por e-mail localmente
 

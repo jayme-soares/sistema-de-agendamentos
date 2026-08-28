@@ -44,13 +44,23 @@ export async function signUp(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: { data: { nome: parsed.data.nome } },
   });
   if (error) {
     return { error: error.message };
+  }
+
+  // Se a confirmação por e-mail estiver desativada no projeto Supabase, o
+  // signUp já retorna uma sessão válida (usuário fica autenticado na hora).
+  // Mandamos direto pro /dashboard: o layout do grupo (app) cuida de
+  // redirecionar para /aguardando-aprovacao se o cadastro ainda não tiver
+  // sido aprovado por um admin. Se a confirmação estiver ativada, não há
+  // sessão ainda — mostramos o aviso de "verifique seu e-mail" no login.
+  if (data.session) {
+    redirect("/dashboard");
   }
 
   redirect("/login?cadastrado=1");
